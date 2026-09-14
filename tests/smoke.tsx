@@ -12,7 +12,8 @@ import {render} from 'ink';
 import {createApplication} from '@/infrastructure/container';
 import {createTranslator, initI18n, type Locale} from '@/i18n/translator';
 import {createEphemeralPreferenceStore} from '@/presentation/config';
-import {App, type View} from '@/presentation/tui/App';
+import {App} from '@/presentation/tui/App';
+import type {View} from '@/presentation/tui/view';
 
 const view = (process.argv[2] ?? 'startup') as View;
 const locale = (process.argv[3] ?? 'en-US') as Locale;
