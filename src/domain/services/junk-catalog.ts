@@ -289,7 +289,3 @@ export const JUNK_CATALOG: readonly JunkTarget[] = Object.freeze([
 		extensions: null,
 	},
 ]);
-
-export function findJunkTarget(id: string): JunkTarget | undefined {
-	return JUNK_CATALOG.find(target => target.id === id);
-}

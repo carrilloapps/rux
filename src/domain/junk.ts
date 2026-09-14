@@ -21,10 +21,6 @@ export const JUNK_CATEGORIES = [
 ] as const;
 export type JunkCategory = (typeof JUNK_CATEGORIES)[number];
 
-export function isJunkCategory(value: string): value is JunkCategory {
-	return (JUNK_CATEGORIES as readonly string[]).includes(value);
-}
-
 /**
  * How a junk location is cleared.
  *
@@ -65,8 +61,4 @@ export interface JunkReport {
 	readonly findings: readonly JunkFinding[];
 	readonly elevated: boolean;
 	readonly scannedAt: string;
-}
-
-export function reclaimableBytes(findings: readonly JunkFinding[]): number {
-	return findings.reduce<number>((total, finding) => total + finding.sizeBytes, 0);
 }

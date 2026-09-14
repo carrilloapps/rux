@@ -112,7 +112,6 @@ function Get-RuxWslConfig {
     if (-not (Test-Path -LiteralPath $path)) { return $result }
     $result.exists = $true
 
-    $known = @('memory', 'processors', 'swap', 'nestedvirtualization', 'gpusupport', 'guiapplications', 'sparsevhd')
     $others = New-Object System.Collections.Generic.List[string]
 
     foreach ($line in (Get-Content -LiteralPath $path -ErrorAction SilentlyContinue)) {
@@ -132,7 +131,6 @@ function Get-RuxWslConfig {
             'sparsevhd' { $result.sparseVhd = ConvertFrom-RuxWslBool $value }
             default { $others.Add($key) }
         }
-        if (-not ($known -contains $key.ToLowerInvariant())) { }
     }
 
     $result.otherKeys = @($others.ToArray())

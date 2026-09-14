@@ -22,12 +22,6 @@ export const IMPACT_ORDER: Readonly<Record<Impact, number>> = Object.freeze({
 	info: 4,
 });
 
-export const RISK_ORDER: Readonly<Record<Risk, number>> = Object.freeze({
-	safe: 0,
-	review: 1,
-	sensitive: 2,
-});
-
 /** Whether an operation requires an elevated (administrator) process. */
 export type Elevation = 'user' | 'administrator';
 
@@ -36,10 +30,6 @@ export type Bytes = number & {readonly __brand: 'Bytes'};
 
 export function bytes(value: number): Bytes {
 	return (Number.isFinite(value) && value > 0 ? value : 0) as Bytes;
-}
-
-export function sumBytes(values: readonly Bytes[]): Bytes {
-	return bytes(values.reduce<number>((total, value) => total + value, 0));
 }
 
 /**
@@ -53,17 +43,4 @@ export interface LocalizableText {
 
 export function text(key: string, values?: Record<string, string | number>): LocalizableText {
 	return values ? {key, values} : {key};
-}
-
-/** Result of an operation that can fail without throwing. */
-export type Outcome<T> =
-	| {readonly ok: true; readonly value: T}
-	| {readonly ok: false; readonly error: string};
-
-export function succeed<T>(value: T): Outcome<T> {
-	return {ok: true, value};
-}
-
-export function fail<T>(error: string): Outcome<T> {
-	return {ok: false, error};
 }

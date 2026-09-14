@@ -55,14 +55,9 @@ export function hasWsl2Distribution(status: WslStatus): boolean {
 }
 
 /**
- * WSL 2 defaults to half of host memory (capped at 8 GB on older builds) and to
- * every logical processor. These helpers express those defaults so the advisor
- * can compare an explicit setting against what WSL would otherwise do.
+ * WSL 2 defaults to half of host memory. Expressing that here lets the advisor
+ * tell the user what WSL would claim when no explicit limit is configured.
  */
 export function defaultWslMemoryBytes(hostMemoryBytes: Bytes): number {
 	return Math.floor(hostMemoryBytes / 2);
-}
-
-export function defaultWslProcessors(hostLogicalCores: number): number {
-	return hostLogicalCores;
 }

@@ -39,9 +39,3 @@ export function sortRecommendations(items: readonly Recommendation[]): readonly 
 		(a, b) => IMPACT_ORDER[a.impact] - IMPACT_ORDER[b.impact] || a.id.localeCompare(b.id),
 	);
 }
-
-export function countByImpact(items: readonly Recommendation[]): Readonly<Record<Impact, number>> {
-	const counts: Record<Impact, number> = {critical: 0, high: 0, medium: 0, low: 0, info: 0};
-	for (const item of items) counts[item.impact] += 1;
-	return counts;
-}
