@@ -155,3 +155,71 @@ describe('analyzeWsl', () => {
 		}
 	});
 });
+
+describe('analyzeWsl, remaining configuration switches', () => {
+	it('flags nested virtualization only when the host actually supports it', () => {
+		const disabled = analyzeWsl(
+			status({config: config({nestedVirtualization: false})}),
+			capabilities({virtualizationEnabled: true}),
+		);
+		expect(ids(disabled)).toContain('wsl.nested-virtualization-disabled');
+
+		const unsupported = analyzeWsl(
+			status({config: config({nestedVirtualization: false})}),
+			capabilities({virtualizationEnabled: null}),
+		);
+		expect(ids(unsupported)).not.toContain('wsl.nested-virtualization-disabled');
+	});
+
+	it('leaves nested virtualization alone when it is unset', () => {
+		const result = analyzeWsl(status({config: config({nestedVirtualization: null})}), capabilities());
+		expect(ids(result)).not.toContain('wsl.nested-virtualization-disabled');
+	});
+
+	it('treats an unset sparse disk the same as a disabled one', () => {
+		expect(ids(analyzeWsl(status({config: config({sparseVhd: null})}), capabilities()))).toContain(
+			'wsl.sparse-vhd-off',
+		);
+	});
+
+	it('ignores swap when the memory limit is generous', () => {
+		const result = analyzeWsl(
+			status({config: config({swapBytes: bytes(0), memoryBytes: bytes(32 * GIB)})}),
+			capabilities(),
+		);
+		expect(ids(result)).not.toContain('wsl.swap-disabled');
+	});
+
+	it('uses the host memory when no limit is configured for the swap check', () => {
+		const result = analyzeWsl(
+			status({config: config({swapBytes: bytes(0), memoryBytes: null})}),
+			capabilities({memoryTotalBytes: bytes(8 * GIB)}),
+		);
+		expect(ids(result)).toContain('wsl.swap-disabled');
+	});
+
+	it('says nothing about processors when none are configured', () => {
+		const result = analyzeWsl(status({config: config({processors: null})}), capabilities());
+		expect(ids(result)).not.toContain('wsl.processors-too-low');
+		expect(ids(result)).not.toContain('wsl.processors-all-cores');
+	});
+
+	it('does not call two processors low on a small host', () => {
+		const result = analyzeWsl(status({config: config({processors: 2})}), capabilities({cpuCores: 4}));
+		expect(ids(result)).not.toContain('wsl.processors-too-low');
+	});
+
+	it('says nothing about memory when no limit is configured', () => {
+		const result = analyzeWsl(status({config: config({memoryBytes: null})}), capabilities());
+		expect(ids(result)).not.toContain('wsl.memory-too-low');
+		expect(ids(result)).not.toContain('wsl.memory-starves-host');
+	});
+
+	it('cannot judge the host share when total memory is unknown', () => {
+		const result = analyzeWsl(
+			status({config: config({memoryBytes: bytes(16 * GIB)})}),
+			capabilities({memoryTotalBytes: bytes(0)}),
+		);
+		expect(ids(result)).not.toContain('wsl.memory-starves-host');
+	});
+});

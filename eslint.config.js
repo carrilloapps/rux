@@ -43,7 +43,7 @@ export default tseslint.config(
 	},
 	{
 		// Build scripts are plain ESM JavaScript and sit outside the typed program.
-		files: ['scripts/**/*.mjs'],
+		files: ['scripts/**/*.mjs', 'scripts/**/*.tsx'],
 		extends: [tseslint.configs.disableTypeChecked],
 		languageOptions: {globals: {...globals.node}},
 	},
