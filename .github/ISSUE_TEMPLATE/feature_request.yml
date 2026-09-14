@@ -1,0 +1,21 @@
+name: Feature request
+description: Suggest a detection rule, a junk location, or a capability
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: risk
+    attributes:
+      label: False positive risk
+      description: If this is a detection rule, what healthy configuration could it wrongly flag?

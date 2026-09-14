@@ -1,0 +1,52 @@
+name: Bug report
+description: Report incorrect behaviour, a false positive, or a crash
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        False positives matter as much as crashes. If rux reported something as a
+        leftover that is actually in use, that is a bug worth reporting.
+  - type: input
+    id: version
+    attributes:
+      label: rux version
+      placeholder: Output of `rux --version`
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows build
+      placeholder: Output of `winver`, for example 10.0.26200
+    validations:
+      required: true
+  - type: dropdown
+    id: elevation
+    attributes:
+      label: Was the terminal elevated?
+      options: ['No', 'Yes']
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you expected, and what rux did instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Run `rux clean --list`
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Relevant output
+      description: Output of the matching `--json` command, with anything sensitive removed.
+      render: json

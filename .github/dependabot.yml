@@ -1,0 +1,81 @@
+version: 2
+
+# Policy
+#
+# Routine updates are limited to minor and patch versions and are proposed on a
+# monthly cadence, so the dependency surface moves predictably rather than
+# constantly. Major versions are ignored here on purpose: they carry breaking
+# changes and belong in a deliberate, reviewed upgrade rather than an automated
+# pull request.
+#
+# Critical security fixes are NOT governed by this schedule. Dependabot security
+# updates are raised as soon as an advisory is published, including for major
+# versions, provided "Dependabot security updates" is enabled in the repository
+# settings. That path is intentionally left unrestricted.
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+      day: monday
+      time: '06:00'
+      timezone: America/Caracas
+    open-pull-requests-limit: 5
+    versioning-strategy: increase
+    labels:
+      - dependencies
+      - automated
+    commit-message:
+      prefix: chore
+      prefix-development: chore
+      include: scope
+    ignore:
+      # Majors are reviewed by hand; see the policy note above.
+      - dependency-name: '*'
+        update-types:
+          - version-update:semver-major
+    groups:
+      production-minor-and-patch:
+        dependency-type: production
+        applies-to: version-updates
+        update-types:
+          - minor
+          - patch
+      development-minor-and-patch:
+        dependency-type: development
+        applies-to: version-updates
+        update-types:
+          - minor
+          - patch
+      # Security fixes are grouped separately so they are obvious in the queue
+      # and can be merged without waiting for the routine batch.
+      security:
+        applies-to: security-updates
+        patterns:
+          - '*'
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+      day: monday
+      time: '06:00'
+      timezone: America/Caracas
+    open-pull-requests-limit: 3
+    labels:
+      - ci
+      - automated
+    commit-message:
+      prefix: ci
+      include: scope
+    ignore:
+      - dependency-name: '*'
+        update-types:
+          - version-update:semver-major
+    groups:
+      actions-minor-and-patch:
+        applies-to: version-updates
+        update-types:
+          - minor
+          - patch
