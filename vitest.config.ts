@@ -14,6 +14,11 @@ export default defineConfig({
 	test: {
 		include: ['tests/**/*.test.ts', 'tests/**/*.test.tsx'],
 		environment: 'node',
+		// Rendered frames are asserted as plain text, so colour cannot be left to
+		// whatever the surrounding shell sets. CI exports FORCE_COLOR=1 to keep
+		// tool output readable, which made Ink interleave escape codes through
+		// every frame and turned passing assertions into failures there only.
+		env: {FORCE_COLOR: '0'},
 		coverage: {
 			provider: 'v8',
 			include: ['src/**'],

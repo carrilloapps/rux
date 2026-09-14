@@ -33,6 +33,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- The test suite no longer depends on whether the surrounding shell forces
+  colour. CI exports `FORCE_COLOR=1`, which made Ink interleave escape codes
+  through every rendered frame, so six assertions that passed on a developer
+  machine failed there and had left CI red on `main`.
 - A display reporting a zero width or height is treated as unknown rather than
   as a wrong resolution. The check lived in two places with different
   definitions of missing, and the one that ran first admitted zero, which
