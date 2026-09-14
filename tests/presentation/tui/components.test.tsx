@@ -1,4 +1,5 @@
 import {beforeAll, describe, expect, it} from 'vitest';
+import {Text} from 'ink';
 import {render} from 'ink-testing-library';
 import {bytes} from '@/domain/common';
 import {createTranslator, initI18n, type Translator} from '@/i18n/translator';
@@ -131,8 +132,23 @@ describe('primitives', () => {
 	});
 
 	it('renders a panel with and without a title', () => {
-		expect(render(<Panel title={<>Title</>}>{<>Body</>}</Panel>).lastFrame()).toContain('Title');
-		expect(render(<Panel>{<>Body</>}</Panel>).lastFrame()).toContain('Body');
+		// Ink requires every string to sit inside a Text node, which is how the
+		// real callers use Panel.
+		const withTitle = render(
+			<Panel title={<Text>Title</Text>}>
+				<Text>Body</Text>
+			</Panel>,
+		).lastFrame();
+		expect(withTitle).toContain('Title');
+		expect(withTitle).toContain('Body');
+
+		const withoutTitle = render(
+			<Panel>
+				<Text>Body</Text>
+			</Panel>,
+		).lastFrame();
+		expect(withoutTitle).toContain('Body');
+		expect(withoutTitle).not.toContain('Title');
 	});
 
 	it('renders an empty state with an optional hint', () => {
