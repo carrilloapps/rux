@@ -8,7 +8,9 @@ import {INSPECT_WSL_SCRIPT} from '@/infrastructure/powershell/scripts/wsl';
 
 const distributionSchema = z.object({
 	name: psText(''),
-	version: z.union([z.literal(1), z.literal(2)]),
+	// Parsed as a plain number and narrowed below. A required 1-or-2 literal
+	// made any unexpected row fail the whole scan rather than be discarded.
+	version: psNumber,
 	state: psText(''),
 	isDefault: z.boolean().catch(false),
 });
@@ -49,12 +51,22 @@ export function createWslAdapter(runner: PowerShellRunner): WslPort {
 				defaultVersion: toVersion(payload.defaultVersion),
 				kernelVersion: payload.kernelVersion,
 				running: payload.running,
-				distributions: payload.distributions.map(distribution => ({
-					name: distribution.name,
-					version: distribution.version,
-					state: distribution.state,
-					isDefault: distribution.isDefault,
-				})),
+				// `wsl --list --verbose` prints headings and notices alongside the
+				// real rows, and on a machine with no WSL installed there is
+				// nothing but those. A row without a name and a usable version is
+				// one of them, so it is dropped rather than reported as a distro.
+				distributions: payload.distributions.flatMap(distribution => {
+					const version = toVersion(distribution.version);
+					if (distribution.name === '' || version === null) return [];
+					return [
+						{
+							name: distribution.name,
+							version,
+							state: distribution.state,
+							isDefault: distribution.isDefault,
+						},
+					];
+				}),
 				config: {
 					exists: payload.config.exists,
 					path: payload.config.path,

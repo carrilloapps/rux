@@ -45,6 +45,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   field the scripts left out failed validation. The helpers, the battery flag
   and the startup approval hive are all absent-safe now, and tested through an
   object, which is the only place the distinction is visible.
+- The WSL distribution list is parsed tolerantly and filtered rather than
+  validated strictly. `wsl --list --verbose` prints a heading and notices
+  alongside the real rows, and a required 1-or-2 version literal turned any
+  such row into a failure of the whole hardware scan.
 - The test suite no longer depends on whether the surrounding shell forces
   colour. CI exports `FORCE_COLOR=1`, which made Ink interleave escape codes
   through every rendered frame, so six assertions that passed on a developer

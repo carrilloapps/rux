@@ -321,6 +321,39 @@ describe('wsl adapter', () => {
 		running: true,
 	};
 
+	it('reads a machine with no WSL installed, where the script reports nothing', async () => {
+		// The payload a runner without WSL produces: the keys the script cannot
+		// fill are absent rather than null, which is the distinction Zod 4 draws.
+		const status = await createWslAdapter(fakeRunner([{installed: false, config: {}}])).inspect();
+
+		expect(status.installed).toBe(false);
+		expect(status.distributions).toEqual([]);
+		expect(status.defaultVersion).toBeNull();
+		expect(status.kernelVersion).toBeNull();
+		expect(status.config.exists).toBe(false);
+	});
+
+	it('drops rows that are not distributions', async () => {
+		// `wsl --list --verbose` prints a heading and notices alongside the real
+		// rows, and those arrive as entries with no name or no usable version.
+		const status = await createWslAdapter(
+			fakeRunner([
+				{
+					...installed,
+					distributions: [
+						{name: '', version: null, state: '', isDefault: false},
+						{name: 'Heading only', version: 7, state: '', isDefault: false},
+						{name: 'Ubuntu', version: 2, state: 'Running', isDefault: true},
+					],
+				},
+			]),
+		).inspect();
+
+		expect(status.distributions).toHaveLength(1);
+		expect(status.distributions[0]?.name).toBe('Ubuntu');
+		expect(status.distributions[0]?.version).toBe(2);
+	});
+
 	it('maps an installed WSL into its domain shape', async () => {
 		const status = await createWslAdapter(fakeRunner([installed])).inspect();
 
