@@ -8,6 +8,8 @@ export interface TerminalSize {
 }
 
 /** Tracks terminal dimensions so lists can size their viewport to the window. */
+/* c8 ignore next 4 -- the ?? fallbacks below only fire when Ink reports no
+   stdout, which cannot happen in a rendered component or in the harness. */
 export function useTerminalSize(): TerminalSize {
 	const {stdout} = useStdout();
 	const [size, setSize] = useState<TerminalSize>({
