@@ -117,9 +117,14 @@ jobs:
         shell: pwsh
         run: |
           Push-Location build
-          Get-ChildItem -File | Where-Object { $_.Extension -in '.exe', '.zip' } |
-            ForEach-Object { '{0}  {1}' -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.Name } |
-            Set-Content -Path SHA256SUMS.txt -Encoding ascii
+          $lines = Get-ChildItem -File | Where-Object { $_.Extension -in '.exe', '.zip' } |
+            ForEach-Object { '{0}  {1}' -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.Name }
+
+          # Written with LF and no BOM. Set-Content emits CRLF, which makes
+          # sha256sum -c look for a filename with a carriage return in it and
+          # report every line as missing.
+          $path = Join-Path (Get-Location) 'SHA256SUMS.txt'
+          [System.IO.File]::WriteAllText($path, ($lines -join "`n") + "`n", (New-Object System.Text.UTF8Encoding $false))
           Get-Content SHA256SUMS.txt
           Pop-Location
 
