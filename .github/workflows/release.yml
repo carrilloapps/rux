@@ -37,26 +37,28 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
-      - name: Resolve version
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Resolve version from the release tag
         id: resolve
         shell: pwsh
         run: |
+          # The tag is the only place a version is authored. package.json is
+          # rewritten from it so the npm package, the bundled --version output,
+          # the installer and the release assets cannot drift apart.
           if ('${{ github.event_name }}' -eq 'release') {
-            $version = '${{ github.event.release.tag_name }}' -replace '^v', ''
+            $tag = '${{ github.event.release.tag_name }}'
           } elseif ('${{ inputs.version }}') {
-            $version = '${{ inputs.version }}'
+            $tag = '${{ inputs.version }}'
           } else {
-            $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+            $tag = (Get-Content package.json -Raw | ConvertFrom-Json).version
           }
-          $declared = (Get-Content package.json -Raw | ConvertFrom-Json).version
-          if ($version -ne $declared) {
-            throw "Release version $version does not match package.json version $declared"
-          }
+
+          node scripts/set-version.mjs $tag
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
           "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
           Write-Host "Building rux $version"
-
-      - name: Install dependencies
-        run: npm ci
 
       - name: Verify
         run: npm run verify
@@ -157,14 +159,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Confirm the tag matches package.json
-        run: |
-          TAG="${GITHUB_REF_NAME#v}"
-          PKG="$(node -p "require('./package.json').version")"
-          if [ "$TAG" != "$PKG" ]; then
-            echo "Tag $TAG does not match package.json version $PKG" >&2
-            exit 1
-          fi
+      - name: Apply the release version
+        run: node scripts/set-version.mjs "${{ github.event.release.tag_name }}"
 
       - name: Build
         run: npm run build

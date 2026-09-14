@@ -1,0 +1,8 @@
+# Default owner for everything in the repository.
+*       @carrilloapps
+
+# Detection rules and the safety guards around removal carry the most risk.
+/src/domain/services/    @carrilloapps
+/src/infrastructure/powershell/    @carrilloapps
+/.github/workflows/      @carrilloapps
+/installer/              @carrilloapps

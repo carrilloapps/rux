@@ -1,8 +1,102 @@
+# Dependencies
 node_modules/
+jspm_packages/
+web_modules/
+.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# Build output
 dist/
 build/
-coverage/
-*.log
+out/
+lib/
 *.tsbuildinfo
+.tsbuildinfo
+
+# Test and coverage output
+coverage/
+.nyc_output/
+*.lcov
+test-results/
+playwright-report/
+
+# Caches
+.cache/
+.temp/
+.tmp/
+.eslintcache
+.stylelintcache
+.parcel-cache/
+.rollup.cache/
+.turbo/
+.vite/
+.rpt2_cache/
+.npm/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+*.snk
+
+# Editors and IDEs
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json.example
+.idea/
+*.sublime-workspace
+*.sublime-project
+*.code-workspace
+.history/
+
+# Operating system
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
 Thumbs.db
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Windows build and installer artifacts
+*.exe
+*.msi
+*.msix
+*.appx
+*.zip
+*.7z
+*.cab
+!installer/**/*.iss
+!assets/*.ico
+Output/
+
+# Local scratch space
+scratch/
+tmp/
+*.local
+*.bak
+*.orig
+*.rej

@@ -1,10 +1,31 @@
-# @carrilloapps/rux
+<div align="center">
 
-Windows system inspector and cleaner, in your terminal. Bilingual (en-US / es-VE).
+<img src="assets/icon-256.png" alt="rux" width="128" height="128" />
+
+# rux
+
+**Windows system inspector and cleaner, in your terminal.**
+
+See what starts with Windows, what your uninstallers left behind, where your disk space went,
+and whether your graphics, drivers and WSL are actually configured well.
 
 [![CI](https://github.com/carrilloapps/rux/actions/workflows/ci.yml/badge.svg)](https://github.com/carrilloapps/rux/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/@carrilloapps/rux)](https://www.npmjs.com/package/@carrilloapps/rux)
-[![license](https://img.shields.io/npm/l/@carrilloapps/rux)](./LICENSE)
+[![CodeQL](https://github.com/carrilloapps/rux/actions/workflows/codeql.yml/badge.svg)](https://github.com/carrilloapps/rux/actions/workflows/codeql.yml)
+[![npm version](https://img.shields.io/npm/v/@carrilloapps/rux?logo=npm&color=cb3837)](https://www.npmjs.com/package/@carrilloapps/rux)
+[![downloads](https://img.shields.io/npm/dm/@carrilloapps/rux?logo=npm&color=cb3837)](https://www.npmjs.com/package/@carrilloapps/rux)
+
+[![license](https://img.shields.io/github/license/carrilloapps/rux?color=blue)](./LICENSE)
+[![node](https://img.shields.io/node/v/@carrilloapps/rux?logo=node.js&color=5fa04e)](https://nodejs.org)
+[![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0078D4?logo=windows)](https://www.microsoft.com/windows)
+[![typescript](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white)](./tsconfig.json)
+[![i18n](https://img.shields.io/badge/i18n-en--US%20%7C%20es--VE-22d3ee)](#language)
+
+[Install](#install) - [Startup](#startup) - [Leftovers](#leftovers) - [Junk](#junk-files) -
+[Hardware](#hardware-and-recommendations) - [WSL](#wsl) - [Roadmap](./docs/ROADMAP.md)
+
+</div>
+
+---
 
 Four things Windows makes hard to see, in one tool:
 

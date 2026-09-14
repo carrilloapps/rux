@@ -1,0 +1,7 @@
+# Publishing uses the "files" field in package.json as the allowlist.
+# This file only guards against anything the allowlist would otherwise sweep in.
+*
+!dist/**
+!README.md
+!LICENSE
+!CHANGELOG.md
