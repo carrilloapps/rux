@@ -1,0 +1,100 @@
+{
+	"name": "@carrilloapps/rux",
+	"version": "1.0.0",
+	"description": "Windows system inspector and cleaner: startup entries, uninstall leftovers, junk files, graphics, drivers and WSL analysis, with reversible removal and a bilingual terminal interface",
+	"keywords": [
+		"windows",
+		"startup",
+		"autostart",
+		"autorun",
+		"cleanup",
+		"junk-files",
+		"leftovers",
+		"uninstall",
+		"registry",
+		"drivers",
+		"graphics",
+		"gpu",
+		"wsl",
+		"tui",
+		"ink",
+		"react",
+		"cli",
+		"i18n"
+	],
+	"homepage": "https://github.com/carrilloapps/rux#readme",
+	"bugs": {
+		"url": "https://github.com/carrilloapps/rux/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/carrilloapps/rux.git"
+	},
+	"license": "MIT",
+	"author": {
+		"name": "Jose Carrillo",
+		"email": "m@carrillo.app",
+		"url": "https://github.com/carrilloapps"
+	},
+	"type": "module",
+	"bin": {
+		"rux": "dist/main.js"
+	},
+	"engines": {
+		"node": ">=20.11.0"
+	},
+	"os": [
+		"win32"
+	],
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE",
+		"CHANGELOG.md"
+	],
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	},
+	"scripts": {
+		"build": "tsup",
+		"dev": "tsup --watch",
+		"start": "node dist/main.js",
+		"typecheck": "tsc --noEmit",
+		"lint": "eslint .",
+		"lint:fix": "eslint . --fix",
+		"format": "prettier --write .",
+		"format:check": "prettier --check .",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:coverage": "vitest run --coverage",
+		"verify": "npm run format:check && npm run typecheck && npm run lint && npm run test",
+		"prepublishOnly": "npm run verify && npm run build",
+		"package:windows": "node scripts/package-windows.mjs"
+	},
+	"dependencies": {
+		"commander": "14.0.2",
+		"conf": "14.0.0",
+		"i18next": "25.6.0",
+		"ink": "6.3.1",
+		"react": "19.2.0",
+		"systeminformation": "5.27.11",
+		"zod": "3.25.76"
+	},
+	"devDependencies": {
+		"@eslint/js": "9.39.1",
+		"@types/node": "22.18.12",
+		"@types/react": "19.2.2",
+		"@vitest/coverage-v8": "3.2.4",
+		"eslint": "9.39.1",
+		"eslint-config-prettier": "10.1.8",
+		"eslint-plugin-react": "7.37.5",
+		"eslint-plugin-react-hooks": "6.1.1",
+		"globals": "16.4.0",
+		"prettier": "3.6.2",
+		"tsup": "8.5.1",
+		"typescript": "5.9.3",
+		"typescript-eslint": "8.46.4",
+		"vitest": "3.2.4"
+	}
+}
