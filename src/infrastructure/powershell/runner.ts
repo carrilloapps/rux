@@ -125,6 +125,10 @@ export function createPowerShellRunner(): PowerShellRunner {
 				);
 				return parseOutput(stdout, schema, 'powershell');
 			} catch (error) {
+				// A parse or validation failure means the call ran and answered
+				// badly. Re-wrapping it as a failed call would hide what happened.
+				if (error instanceof RuxError) throw error;
+
 				const failure = error as {stdout?: string; stderr?: string; message?: string};
 				// Scripts report handled failures as JSON before exiting non-zero.
 				if (failure.stdout?.trim()) {
@@ -139,6 +143,10 @@ export function createPowerShellRunner(): PowerShellRunner {
 			}
 		},
 
+		/* c8 ignore start -- exercising this path would raise a real UAC prompt,
+		   which no automated run can answer. Its behaviour is covered by the
+		   adapter tests, which assert that elevation is requested for the right
+		   batches, and by the release workflow, which runs an elevated removal. */
 		async elevatedJson<S extends ZodTypeAny>(
 			script: string,
 			schema: S,
@@ -175,6 +183,7 @@ export function createPowerShellRunner(): PowerShellRunner {
 				await workspace.dispose();
 			}
 		},
+		/* c8 ignore stop */
 	};
 }
 
