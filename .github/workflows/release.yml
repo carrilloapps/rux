@@ -70,21 +70,34 @@ jobs:
         # Uses the runner's own Node, which .nvmrc pins, as the embedded runtime.
         run: npm run package:windows
 
-      - name: Smoke-test the staged build
+      - name: Smoke-test the staged build in isolation
         shell: pwsh
         run: |
-          # A distribution that builds but cannot read the system is not a release.
-          $reported = (& .\build\stage\rux.cmd --version).Trim()
+          # Copied out of the checkout first. Run it in place and the repository's
+          # node_modules satisfies imports the distribution has to carry itself,
+          # which is exactly how a build that cannot start shipped once already.
+          $isolated = Join-Path $env:RUNNER_TEMP 'rux-isolated'
+          Remove-Item -Recurse -Force $isolated -ErrorAction SilentlyContinue
+          Copy-Item -Recurse build\stage $isolated
+          if (Test-Path (Join-Path $isolated 'node_modules')) {
+            throw 'The staged distribution must not ship node_modules'
+          }
+
+          $rux = Join-Path $isolated 'rux.cmd'
+          $reported = (& $rux --version).Trim()
           if ($reported -ne '${{ steps.resolve.outputs.version }}') {
             throw "Version mismatch: expected ${{ steps.resolve.outputs.version }}, got $reported"
           }
-          & .\build\stage\rux.cmd --help | Out-Null
-          & .\build\stage\rux.cmd startup --list --lang en-US
-          & .\build\stage\rux.cmd startup --list --lang es-VE | Out-Null
-          & .\build\stage\rux.cmd clean --json --class startup | ConvertFrom-Json | Out-Null
-          & .\build\stage\rux.cmd junk --json | ConvertFrom-Json | Out-Null
-          & .\build\stage\rux.cmd hardware --json | ConvertFrom-Json | Out-Null
-          Write-Host 'Staged build smoke test passed.'
+
+          # A distribution that builds but cannot read the system is not a release.
+          & $rux --help | Out-Null
+          & $rux startup --list --lang en-US
+          & $rux startup --list --lang es-VE | Out-Null
+          & $rux backups | Out-Null
+          & $rux clean --json --class startup | ConvertFrom-Json | Out-Null
+          & $rux junk --json | ConvertFrom-Json | Out-Null
+          & $rux hardware --json | ConvertFrom-Json | Out-Null
+          Write-Host 'Isolated smoke test passed.'
 
       - name: Install Inno Setup
         shell: pwsh
@@ -138,7 +151,9 @@ jobs:
     name: Publish to npm
     needs: build-windows
     if: github.event_name == 'release'
-    runs-on: ubuntu-latest
+    # package.json declares os: win32, which makes npm ci refuse to install the
+    # package's own tree anywhere else. The publish therefore runs on Windows.
+    runs-on: windows-latest
     timeout-minutes: 15
     permissions:
       contents: read
