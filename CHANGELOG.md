@@ -7,6 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.2] - 2026-09-14
+
+### Added
+
+- `@tests/*` path alias beside `@/*`, so test helpers are imported by a stable
+  path rather than by counting directories back to `tests/helpers`.
+- `npm run clean`, `npm run preview`, `npm run package:installer`,
+  `npm run pack:check`, `npm run version:set` and `npm run verify:coverage`.
+  The installer is now compiled by the same script locally and in CI.
+- Subcommand help points at the global option list, which Commander does not
+  repeat per command.
+
+### Fixed
+
+- The installer and portable archive of 0.0.1 could not start. The bundler
+  marked `react`, `ink` and `systeminformation` as external while the
+  distribution ships no `node_modules`, so both artifacts failed at load with
+  `Cannot find package 'react'`. Every dependency is now bundled, and the
+  distribution runs with nothing beside it.
+- The npm package is published from a Windows runner. `npm ci` refuses to
+  install a package whose manifest declares `os: win32` on any other platform,
+  so 0.0.1 never reached the registry.
+
+### Changed
+
+- `set-version.mjs` also writes the version into `package-lock.json`, which
+  otherwise drifted out of sync with the manifest and would fail `npm ci`.
+- The README leads with `npx`, documents every command, option and key, and
+  folds the long sections into collapsible blocks with real captured frames.
+- The runtime dependencies moved to `devDependencies`. They are compiled into
+  the bundle, so declaring them only made `npx @carrilloapps/rux` download a
+  dependency tree it never loads. The published package is now the tarball
+  alone.
+- The release smoke test copies the staged build out of the checkout before
+  running it, and asserts no `node_modules` came with it. Running it in place
+  let the repository satisfy imports the distribution has to carry itself,
+  which is how artifacts that cannot start reached a release.
+
 ## [0.0.1] - 2026-09-14
 
 ### Added
@@ -48,5 +86,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A protected-path guard refuses removal of system directories regardless of
   what a finding claims.
 
-[Unreleased]: https://github.com/carrilloapps/rux/compare/v0.0.1...HEAD
+[Unreleased]: https://github.com/carrilloapps/rux/compare/v0.0.2...HEAD
+[0.0.2]: https://github.com/carrilloapps/rux/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/carrilloapps/rux/releases/tag/v0.0.1
