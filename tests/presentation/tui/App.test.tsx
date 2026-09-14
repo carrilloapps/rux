@@ -25,6 +25,9 @@ const ESCAPE = '\u001B';
 const BACKSPACE = '\u0008';
 const ENTER = '\r';
 const TAB = '\t';
+const UP_ARROW = '\u001B[A';
+const PAGE_UP = '\u001B[5~';
+const PAGE_DOWN = '\u001B[6~';
 
 let t: Translator;
 
@@ -229,6 +232,196 @@ describe('App', () => {
 
 			await press(stdin, '/', 'Sec', BACKSPACE);
 			await expectFrame(lastFrame, '/Se');
+		});
+	});
+
+	describe('filters, sorts and paging', () => {
+		it('cycles forward through every startup filter', async () => {
+			const {stdin, lastFrame} = mount(populated());
+			await expectFrame(lastFrame, '2 entries');
+
+			for (const filter of ['running', 'stopped', 'enabled', 'disabled', 'missing', 'all']) {
+				await press(stdin, 'f');
+				await expectFrame(lastFrame, `${filter}/`);
+			}
+		});
+
+		it('cycles backward through the filters', async () => {
+			const {stdin, lastFrame} = mount(populated());
+			await expectFrame(lastFrame, '2 entries');
+
+			await press(stdin, 'F');
+			await expectFrame(lastFrame, 'missing/');
+		});
+
+		it('cycles through every sort, ordering the list by each', async () => {
+			const {stdin, lastFrame} = mount(populated());
+			await expectFrame(lastFrame, '2 entries');
+
+			for (const sort of ['name', 'source', 'memory', 'status']) {
+				await press(stdin, 's');
+				await expectFrame(lastFrame, `/${sort}`);
+			}
+		});
+
+		it('moves a page at a time', async () => {
+			const entries = Array.from({length: 40}, (_, index) =>
+				aRawStartupEntry({id: `entry-${index}`, name: `Entry ${String(index).padStart(2, '0')}`}),
+			);
+			const {stdin, lastFrame} = mount({
+				startupInventory: fakeStartupInventoryPort(entries, []),
+			});
+			await expectFrame(lastFrame, '40 entries');
+
+			await press(stdin, PAGE_DOWN);
+			await expectFrame(lastFrame, 'Entry 10');
+
+			await press(stdin, PAGE_UP);
+			await expectFrame(lastFrame, 'Entry 00');
+		});
+	});
+
+	describe('guards', () => {
+		it('refuses startup mutations in read-only mode', async () => {
+			const mutation = fakeStartupMutationPort();
+			const {stdin, lastFrame} = mount(
+				{
+					startupInventory: fakeStartupInventoryPort([aRawStartupEntry()], [aProcess()]),
+					startupMutation: mutation,
+				},
+				{readOnly: true},
+			);
+			await expectFrame(lastFrame, '1 entries');
+
+			await press(stdin, ' ');
+			await expectFrame(lastFrame, 'read-only');
+
+			await press(stdin, 'd');
+			await expectFrame(lastFrame, 'read-only');
+			expect(mutation.calls).toHaveLength(0);
+		});
+
+		it('ignores keys while an action is in flight', async () => {
+			let release = () => undefined as void;
+			const held = new Promise<void>(resolve => {
+				release = resolve;
+			});
+			const mutation = {
+				calls: [] as Array<{mutation: string}>,
+				async mutate(_entry: unknown, kind: string) {
+					mutation.calls.push({mutation: kind});
+					await held;
+				},
+			};
+			const {stdin, lastFrame} = mount({
+				startupInventory: fakeStartupInventoryPort([aRawStartupEntry()], [aProcess()]),
+				startupMutation: mutation,
+			});
+			await expectFrame(lastFrame, '1 entries');
+
+			await press(stdin, ' ', 'y');
+			await waitFor(() => expect(mutation.calls).toHaveLength(1));
+
+			// The mutation has not resolved, so every key is swallowed.
+			await press(stdin, TAB, ' ', 'r');
+			expect(mutation.calls).toHaveLength(1);
+			expect(lastFrame() ?? '').toContain('Startup');
+
+			release();
+			await waitFor(() => expect(lastFrame() ?? '').toContain('1 entries'));
+		});
+
+		it('quits on q', async () => {
+			const {stdin, lastFrame} = mount(populated());
+			await expectFrame(lastFrame, '2 entries');
+			await press(stdin, 'q');
+			// Quitting unmounts the tree, so the interface is gone from the frame
+			// rather than merely idle.
+			await expectNoFrame(lastFrame, 'Startup');
+		});
+	});
+
+	describe('navigation and empty views', () => {
+		it('opens directly on the hardware view', async () => {
+			const {lastFrame} = mount(populated(), {initialView: 'hardware'});
+			await expectFrame(lastFrame, 'Recommendations');
+		});
+
+		it('moves up as well as down', async () => {
+			const {stdin, lastFrame} = mount(populated());
+			await expectFrame(lastFrame, '2 entries');
+
+			await press(stdin, 'j', 'j');
+			await press(stdin, 'k');
+			await press(stdin, UP_ARROW);
+			expect(lastFrame() ?? '').toContain('2 entries');
+		});
+
+		it('ignores startup keys when there is nothing selected', async () => {
+			const mutation = fakeStartupMutationPort();
+			const {stdin, lastFrame} = mount({
+				startupInventory: fakeStartupInventoryPort([], []),
+				startupMutation: mutation,
+			});
+			await expectFrame(lastFrame, '0 entries');
+
+			await press(stdin, ' ', 'd', 'e');
+			expect(mutation.calls).toHaveLength(0);
+		});
+
+		it('filters out entries that are not running', async () => {
+			const {stdin, lastFrame} = mount({
+				startupInventory: fakeStartupInventoryPort(
+					[
+						aRawStartupEntry(),
+						aRawStartupEntry({
+							id: 'b',
+							name: 'Dormant',
+							command: '"C:\\Other\\other.exe"',
+							executablePath: 'C:\\Other\\other.exe',
+							executableName: 'other.exe',
+						}),
+					],
+					[aProcess()],
+				),
+			});
+			await expectFrame(lastFrame, '2 entries');
+			expect(lastFrame() ?? '').toContain('Dormant');
+
+			await press(stdin, 'f');
+			await expectFrame(lastFrame, 'running/');
+			await expectNoFrame(lastFrame, 'Dormant');
+		});
+	});
+
+	describe('partial failures', () => {
+		it('reports leftovers that could not be removed', async () => {
+			const {stdin, lastFrame} = mount(
+				{
+					residueScan: fakeResidueScanPort([aResidueFinding()]),
+					residueRemoval: fakeResidueRemovalPort({removed: 1, failed: 2, backupId: 'b-1', receipts: []}),
+				},
+				{initialView: 'residue'},
+			);
+			await expectFrame(lastFrame, '1 leftovers');
+
+			await press(stdin, 'a', 'x', 'y');
+			await expectFrame(lastFrame, '2 failed');
+			await expectFrame(lastFrame, 'Backup b-1');
+		});
+
+		it('reports junk locations that could not be cleared', async () => {
+			const {stdin, lastFrame} = mount(
+				{
+					junkScan: fakeJunkScanPort([aJunkFinding()]),
+					junkClean: fakeJunkCleanPort({cleared: 1, failed: 3, freedBytes: 1024, receipts: []}),
+				},
+				{initialView: 'junk'},
+			);
+			await expectFrame(lastFrame, '1 locations');
+
+			await press(stdin, 'a', 'x', 'y');
+			await expectFrame(lastFrame, '3 failed');
 		});
 	});
 

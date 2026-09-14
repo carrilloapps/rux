@@ -182,6 +182,31 @@ describe('analyzeGraphics', () => {
 			expect(find(result, 'display.non-native-resolution')).toBeUndefined();
 		});
 
+		it.each([
+			['width', {currentWidth: 0}],
+			['height', {currentHeight: 0}],
+		])('cannot judge a display reporting a zero %s', (_axis, overrides) => {
+			// A driver that has not finished initialising reports zero rather than
+			// null, which would divide into Infinity and read as a wrong mode.
+			const result = analyzeGraphics(
+				aGraphicsProfile({displays: [aDisplay({...overrides, nativeWidth: 1920, nativeHeight: 1080})]}),
+				NOW,
+			);
+			expect(find(result, 'display.non-native-resolution')).toBeUndefined();
+		});
+
+		it('cannot judge a display whose native height alone is unknown', () => {
+			// Both axes are needed to tell DPI scaling from a wrong mode, so a
+			// half-known native size has to be treated the same as an unknown one.
+			const result = analyzeGraphics(
+				aGraphicsProfile({
+					displays: [aDisplay({currentWidth: 1280, currentHeight: 1024, nativeHeight: null})],
+				}),
+				NOW,
+			);
+			expect(find(result, 'display.non-native-resolution')).toBeUndefined();
+		});
+
 		it('flags reduced colour depth', () => {
 			const result = analyzeGraphics(aGraphicsProfile({displays: [aDisplay({pixelDepth: 16})]}), NOW);
 			expect(find(result, 'display.low-color-depth')?.impact).toBe('medium');

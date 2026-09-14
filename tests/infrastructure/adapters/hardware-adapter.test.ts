@@ -22,7 +22,7 @@ vi.mock('systeminformation', () => ({
 }));
 
 const {createHardwareAdapter} = await import('@/infrastructure/adapters/hardware-adapter');
-const {fakeRunner} = await import('../../helpers/fakes');
+const {fakeRunner} = await import('@tests/helpers/fakes');
 
 /**
  * systeminformation reads real hardware, so it is replaced here. What is under
@@ -123,6 +123,45 @@ describe('hardware adapter', () => {
 		expect(report.graphics.controllers[0]?.integrated).toBe(false);
 		expect(report.graphics.controllers[0]?.vramBytes).toBe(4096 * 1024 * 1024);
 		expect(report.graphics.controllers[1]?.integrated).toBe(true);
+	});
+
+	it('classifies an AMD integrated adapter by its model name', async () => {
+		// AMD ships integrated parts under names that carry no vendor hint, so
+		// the model string is the only signal available.
+		graphics.mockResolvedValue({
+			controllers: [
+				{vendor: 'Advanced Micro Devices, Inc.', model: 'AMD Radeon Graphics', vram: 512},
+				{vendor: 'AMD', model: 'Vega 8 Graphics', vram: 512},
+				{vendor: 'Intel Corporation', model: 'UHD Graphics 630', vram: 128},
+			],
+			displays: [],
+		});
+
+		const report = await createHardwareAdapter(fakeRunner([{...SCRIPT_PAYLOAD, displayModes: []}])).inspect();
+
+		expect(report.graphics.controllers.map(controller => controller.integrated)).toEqual([true, true, true]);
+	});
+
+	it('treats shared dynamic memory as integrated whatever the name says', async () => {
+		graphics.mockResolvedValue({
+			controllers: [{vendor: 'Acme', model: 'Mystery Adapter', vram: 1024, vramDynamic: true}],
+			displays: [],
+		});
+
+		const report = await createHardwareAdapter(fakeRunner([{...SCRIPT_PAYLOAD, displayModes: []}])).inspect();
+
+		expect(report.graphics.controllers[0]?.integrated).toBe(true);
+	});
+
+	it('keeps an unknown adapter with dedicated memory discrete', async () => {
+		graphics.mockResolvedValue({
+			controllers: [{vendor: 'Acme', model: 'Mystery Adapter', vram: 8192, vramDynamic: false}],
+			displays: [],
+		});
+
+		const report = await createHardwareAdapter(fakeRunner([{...SCRIPT_PAYLOAD, displayModes: []}])).inspect();
+
+		expect(report.graphics.controllers[0]?.integrated).toBe(false);
 	});
 
 	it('stamps adapters with the display driver date, which only the PnP inventory has', async () => {
