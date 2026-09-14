@@ -442,7 +442,7 @@ with its own quotes is a healthy install, and a naive check reports it as a left
  tab switch view - / search - l switch language - ? help - q quit
 ```
 
-Twenty-four known locations across sixteen categories: temp folders, Windows Update and Delivery
+Twenty-five known locations across fifteen categories: temp folders, Windows Update and Delivery
 Optimization caches, Prefetch, thumbnail and icon caches, error reports, crash dumps, the Recycle
 Bin, font cache, servicing logs, browser caches (Edge, Chrome, Firefox) and package manager caches
 (npm, NuGet, pip, Yarn), plus `Windows.old`.

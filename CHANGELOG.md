@@ -136,7 +136,7 @@ to 0.0.3, which is why this is a patch over it rather than a rebuild of it.
 - Leftovers view: eight classes of uninstall residue (startup entries,
   uninstall keys, services, scheduled tasks, shortcuts, App Paths, firewall
   rules and empty install folders), each with a removal descriptor and evidence.
-- Junk view: twenty-four known cache and temporary locations across sixteen
+- Junk view: twenty-five known cache and temporary locations across fifteen
   categories, measured with per-location minimum file ages.
 - Hardware view: graphics adapters, display modes, the full driver inventory and
   system capabilities, turned into prioritised recommendations.
