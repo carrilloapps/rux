@@ -85,7 +85,7 @@ npm install -g @carrilloapps/rux
 rux
 ```
 
-Windows only. The npm package needs Node 20.11 or newer; the standalone binary needs nothing.
+Windows only. The npm package needs Node 20.19 or newer; the standalone binary needs nothing.
 Neither depends on PowerShell 7 — rux uses the Windows PowerShell 5.1 that ships with every
 supported Windows.
 
