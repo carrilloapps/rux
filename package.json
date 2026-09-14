@@ -75,7 +75,7 @@
 		"icons": "node scripts/build-icons.mjs",
 		"package:windows": "node scripts/package-windows.mjs",
 		"package:installer": "node scripts/build-installer.mjs",
-		"pack:check": "npm pack --dry-run",
+		"pack:check": "npm run build && npm pack --dry-run",
 		"version:set": "node scripts/set-version.mjs",
 		"prepublishOnly": "npm run verify && npm run build"
 	},
