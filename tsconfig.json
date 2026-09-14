@@ -18,7 +18,8 @@
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
-		"baseUrl": ".",
+		// No "baseUrl": TypeScript 6 deprecates it and 7 removes it. Path
+		// mappings resolve relative to this file, which is what they already did.
 		"paths": {
 			"@/*": ["./src/*"],
 			"@tests/*": ["./tests/*"]

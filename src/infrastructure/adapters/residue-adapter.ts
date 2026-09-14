@@ -25,7 +25,7 @@ const findingSchema = z.object({
 	title: z.string(),
 	reasonKey: z.string(),
 	reasonValues: z
-		.record(z.union([z.string(), z.number()]))
+		.record(z.string(), z.union([z.string(), z.number()]))
 		.nullish()
 		.transform(v => v ?? {}),
 	evidence: psString,

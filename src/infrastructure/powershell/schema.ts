@@ -9,10 +9,10 @@ import {z} from 'zod';
  * Parsing raw output with `z.array` therefore fails on exactly the machines
  * that have one leftover or none, which is the common case.
  *
- * The generic is constrained to `z.ZodTypeAny` rather than a cast, so element
+ * The generic is constrained to `z.ZodType` rather than a cast, so element
  * types survive inference and `z.infer` stays precise at the call site.
  */
-export function psArray<T extends z.ZodTypeAny>(item: T): z.ZodType<z.output<T>[], z.ZodTypeDef, unknown> {
+export function psArray<T extends z.ZodType>(item: T): z.ZodType<z.output<T>[], unknown> {
 	const widen = (value: unknown): unknown[] => {
 		if (value === null || value === undefined) return [];
 		return Array.isArray(value) ? (value as unknown[]) : [value];

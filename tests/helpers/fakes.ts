@@ -1,9 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return --
- * Mirrors the suppression on the real runner: these helpers are generic
- * over a Zod schema, so `z.output<S>` is `any` while the generic is
- * unresolved even though every call site receives a fully typed value.
- */
-import type {ZodTypeAny, output as ZodOutput} from 'zod';
+import type {ZodType, output as ZodOutput} from 'zod';
 import type {
 	BackupPort,
 	BackupSummary,
@@ -204,12 +199,12 @@ export function fakeRunner(payloads: unknown[], options: {failElevated?: boolean
 	let elevatedCalls = 0;
 	let index = 0;
 
-	const next = <S extends ZodTypeAny>(script: string, schema: S, params?: unknown): ZodOutput<S> => {
+	const next = <S extends ZodType>(script: string, schema: S, params?: unknown): ZodOutput<S> => {
 		scripts.push(script);
 		parameters.push(params);
 		const payload = payloads[Math.min(index, payloads.length - 1)];
 		index += 1;
-		return schema.parse(payload) as ZodOutput<S>;
+		return schema.parse(payload);
 	};
 
 	return {

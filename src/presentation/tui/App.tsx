@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {Box, Text, useApp, useInput, type Key as InkKey} from 'ink';
 import type {UseCases} from '@/application/use-cases';
 import {canToggle, statusOf} from '@/domain/startup';
@@ -74,7 +74,9 @@ export function App(props: AppProps) {
 	const [deep, setDeep] = useState(props.deep);
 
 	// Holds the live key handler so the function Ink subscribes to never changes.
-	const handlerRef = useRef<(input: string, key: InkKey) => void>(() => undefined);
+	// It starts empty rather than with a no-op: the layout effect below fills it
+	// before Ink can subscribe, so a placeholder would only ever be dead code.
+	const handlerRef = useRef<((input: string, key: InkKey) => void) | null>(null);
 
 	const reportError = useCallback((message: string) => {
 		setStatus({text: message, tone: 'error'});
@@ -107,13 +109,16 @@ export function App(props: AppProps) {
 	const initialTasks = props.includeTasks;
 	const initialDeep = props.deep;
 
-	// Each view loads once, on first visit, so opening rux stays fast.
+	// Each view loads once, on first visit, so opening rux stays fast. The props
+	// only name the view to open with, and `scans` changes identity on every
+	// state update, so a complete dependency list would rescan the system each
+	// time a scan finished. Every later load goes through a key handler.
 	useEffect(() => {
 		void scans.loadStartup(initialTasks);
 		if (initialView === 'residue') void scans.loadResidue(initialDeep);
 		if (initialView === 'junk') void scans.loadJunk();
 		if (initialView === 'hardware') void scans.loadHardware();
-		// Runs once on mount; every later load goes through a key handler.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	useEffect(() => {
@@ -358,10 +363,10 @@ export function App(props: AppProps) {
 	 * Ink subscribes once and no keystroke is lost.
 	 */
 	const handleKey = useCallback((input: string, key: InkKey) => {
-		handlerRef.current(input, key);
+		handlerRef.current?.(input, key);
 	}, []);
 
-	handlerRef.current = (input: string, key: InkKey) => {
+	const onKey = (input: string, key: InkKey) => {
 		if (busy) return;
 
 		if (mode === 'search') {
@@ -415,6 +420,15 @@ export function App(props: AppProps) {
 		if (view === 'startup') return handleStartupKey(input);
 		if (isSelectableView(view)) handleSelectionKey(input, key.return);
 	};
+
+	// Published after render, not during it: writing a ref while rendering is
+	// unsafe once React renders concurrently. It has to be a layout effect
+	// rather than a passive one, because a passive effect flushes after the
+	// frame is already on screen, and a key pressed in that gap would be handled
+	// by the previous render's closure and act on stale data.
+	useLayoutEffect(() => {
+		handlerRef.current = onKey;
+	});
 
 	useInput(handleKey);
 

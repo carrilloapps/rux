@@ -30,29 +30,32 @@ const SCALE_EPSILON = 0.01;
  * DPI-scaled. Reporting that as a misconfigured resolution would be wrong: the
  * panel is running at its native mode and only the logical size differs.
  */
-function isDpiScaled(display: DisplayDevice): boolean {
-	if (!display.currentWidth || !display.nativeWidth) return false;
-	if (!display.currentHeight || !display.nativeHeight) return false;
-
+function isDpiScaled(
+	currentWidth: number,
+	currentHeight: number,
+	nativeWidth: number,
+	nativeHeight: number,
+): boolean {
 	// Both axes must scale by the same factor. Checking width alone would
 	// misread a different aspect ratio, such as 1280x1024 on a 1920x1080 panel,
 	// as scaling and hide a genuinely wrong display mode.
-	const widthRatio = display.nativeWidth / display.currentWidth;
-	const heightRatio = display.nativeHeight / display.currentHeight;
+	const widthRatio = nativeWidth / currentWidth;
+	const heightRatio = nativeHeight / currentHeight;
 	if (Math.abs(widthRatio - heightRatio) > SCALE_EPSILON) return false;
 
 	return DPI_SCALE_FACTORS.some(factor => Math.abs(widthRatio - factor) < SCALE_EPSILON);
 }
 
 function resolutionMismatch(display: DisplayDevice): boolean {
-	return (
-		display.currentWidth !== null &&
-		display.currentHeight !== null &&
-		display.nativeWidth !== null &&
-		display.nativeHeight !== null &&
-		(display.currentWidth !== display.nativeWidth || display.currentHeight !== display.nativeHeight) &&
-		!isDpiScaled(display)
-	);
+	const {currentWidth, currentHeight, nativeWidth, nativeHeight} = display;
+
+	// Zero counts as unknown rather than as a wrong mode: a driver that has not
+	// finished initialising reports zero where it later reports a real size, and
+	// dividing by it would produce Infinity rather than a ratio.
+	if (!currentWidth || !currentHeight || !nativeWidth || !nativeHeight) return false;
+	if (currentWidth === nativeWidth && currentHeight === nativeHeight) return false;
+
+	return !isDpiScaled(currentWidth, currentHeight, nativeWidth, nativeHeight);
 }
 
 function refreshMismatch(display: DisplayDevice): boolean {

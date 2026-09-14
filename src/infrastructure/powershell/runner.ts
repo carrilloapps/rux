@@ -1,18 +1,10 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return --
- * These functions are generic over a Zod schema and return that schema's own
- * output type. While the generic is unresolved, `z.output<S>` is `any` to the
- * linter, so every return reads as unsafe even though each call site receives a
- * fully typed value. The parse itself is validated against the schema, which is
- * the real safety boundary. Narrowing the generic further would push `unknown`
- * onto every caller for no gain.
- */
 import {execFile} from 'node:child_process';
 import {randomUUID} from 'node:crypto';
 import {mkdtemp, readFile, rm, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {promisify} from 'node:util';
-import type {SafeParseReturnType, ZodTypeAny, output as ZodOutput} from 'zod';
+import type {ZodSafeParseResult, ZodType, output as ZodOutput} from 'zod';
 import {RuxError} from '@/shared/errors';
 
 const execFileAsync = promisify(execFile);
@@ -64,7 +56,7 @@ function buildScript(script: string, parameters: unknown, outFile?: string): str
 	return [UTF8_BOM + PREAMBLE, head, withParameters(script, parameters)].join('\n');
 }
 
-function parseOutput<S extends ZodTypeAny>(stdout: string, schema: S, context: string): ZodOutput<S> {
+function parseOutput<S extends ZodType>(stdout: string, schema: S, context: string): ZodOutput<S> {
 	const trimmed = stdout.trim();
 	if (trimmed.length === 0) {
 		throw new RuxError(`${context}: PowerShell produced no output`);
@@ -79,7 +71,7 @@ function parseOutput<S extends ZodTypeAny>(stdout: string, schema: S, context: s
 
 	// safeParse on a generic schema widens `data` to `any`; restating the return
 	// type here keeps the value typed for every caller.
-	const result = schema.safeParse(parsed) as SafeParseReturnType<unknown, ZodOutput<S>>;
+	const result = schema.safeParse(parsed) as ZodSafeParseResult<ZodOutput<S>>;
 	if (!result.success) {
 		const issues = result.error.issues.map(issue => `${issue.path.join('.')}: ${issue.message}`).join('; ');
 		throw new RuxError(`${context}: unexpected PowerShell payload`, issues);
@@ -89,9 +81,9 @@ function parseOutput<S extends ZodTypeAny>(stdout: string, schema: S, context: s
 
 export interface PowerShellRunner {
 	/** Runs a script and validates its JSON output against a schema. */
-	json<S extends ZodTypeAny>(script: string, schema: S, parameters?: unknown): Promise<ZodOutput<S>>;
+	json<S extends ZodType>(script: string, schema: S, parameters?: unknown): Promise<ZodOutput<S>>;
 	/** Runs a script through UAC; output travels back through a temp file. */
-	elevatedJson<S extends ZodTypeAny>(script: string, schema: S, parameters?: unknown): Promise<ZodOutput<S>>;
+	elevatedJson<S extends ZodType>(script: string, schema: S, parameters?: unknown): Promise<ZodOutput<S>>;
 }
 
 interface Workspace {
@@ -114,7 +106,7 @@ async function createWorkspace(): Promise<Workspace> {
 
 export function createPowerShellRunner(): PowerShellRunner {
 	return {
-		async json<S extends ZodTypeAny>(script: string, schema: S, parameters?: unknown): Promise<ZodOutput<S>> {
+		async json<S extends ZodType>(script: string, schema: S, parameters?: unknown): Promise<ZodOutput<S>> {
 			const workspace = await createWorkspace();
 			try {
 				await writeFile(workspace.scriptFile, buildScript(script, parameters), 'utf8');
@@ -147,7 +139,7 @@ export function createPowerShellRunner(): PowerShellRunner {
 		   which no automated run can answer. Its behaviour is covered by the
 		   adapter tests, which assert that elevation is requested for the right
 		   batches, and by the release workflow, which runs an elevated removal. */
-		async elevatedJson<S extends ZodTypeAny>(
+		async elevatedJson<S extends ZodType>(
 			script: string,
 			schema: S,
 			parameters?: unknown,

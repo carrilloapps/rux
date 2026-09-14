@@ -52,8 +52,9 @@ export async function initI18n(locale: Locale): Promise<I18nInstance> {
 			// Terminal output is never HTML, so escaping would corrupt real paths.
 			escapeValue: false,
 		},
-		// The UI reads keys synchronously during render.
-		initImmediate: false,
+		// The UI reads keys synchronously during render. i18next 26 renamed the
+		// option that controls this from initImmediate to its inverse, initAsync.
+		initAsync: false,
 	});
 
 	return instance;
