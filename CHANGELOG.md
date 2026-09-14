@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.4] - 2026-09-14
+
+Packaging and tooling only. No behaviour changed: `dist/main.js` is identical
+to 0.0.3, which is why this is a patch over it rather than a rebuild of it.
+
+### Fixed
+
+- `publishConfig` no longer requests provenance. npm can only generate it from
+  a CI runner holding an OIDC token, so with publishing moved to a workstation
+  the setting failed the publish before it started. 0.0.3 could be built but
+  not published by hand.
+- `SHA256SUMS.txt` is written with LF. `Set-Content` emits CRLF, so every line
+  ended in a carriage return that `sha256sum -c` read as part of the filename
+  and reported both assets as missing, on files that were correct.
+- `pack:check` builds before inspecting. It ran `npm pack --dry-run` against
+  whatever `dist` happened to hold, which on a fresh clone is nothing, so the
+  check reported a tarball with no bundle in it.
+
 ## [0.0.3] - 2026-09-14
 
 ### Changed
@@ -148,7 +166,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A protected-path guard refuses removal of system directories regardless of
   what a finding claims.
 
-[Unreleased]: https://github.com/carrilloapps/rux/compare/v0.0.3...HEAD
+[Unreleased]: https://github.com/carrilloapps/rux/compare/v0.0.4...HEAD
+[0.0.4]: https://github.com/carrilloapps/rux/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/carrilloapps/rux/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/carrilloapps/rux/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/carrilloapps/rux/releases/tag/v0.0.1

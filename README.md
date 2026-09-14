@@ -96,7 +96,7 @@ file, so there is no dependency tree to install.
 To pin a version, or to force a fresh download:
 
 ```sh
-npx @carrilloapps/rux@0.0.3      # a specific version
+npx @carrilloapps/rux@0.0.4      # a specific version
 npx --yes @carrilloapps/rux      # skip the install prompt
 ```
 
@@ -795,7 +795,7 @@ someone deciding to. From a clean checkout on Windows:
 
 ```sh
 npm ci
-npm run version:set 0.0.3      # writes package.json and the lockfile
+npm run version:set 0.0.4      # writes package.json and the lockfile
 npm run verify                 # format, types, lint, tests
 npm run pack:check             # confirm the tarball is the five expected files
 npm publish --access public

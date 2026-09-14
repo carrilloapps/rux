@@ -1,6 +1,6 @@
 {
 	"name": "@carrilloapps/rux",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"description": "Windows system inspector and cleaner: startup entries, uninstall leftovers, junk files, graphics, drivers and WSL analysis, with reversible removal and a bilingual terminal interface",
 	"keywords": [
 		"windows",
