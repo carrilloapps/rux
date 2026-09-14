@@ -32,7 +32,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   proves it: one job builds on the current toolchain, switches to 20.19 and
   runs the bundle there.
 - Publishing to npm is a manual step and the release workflow no longer
-  attempts it. The workflow still builds, verifies, smoke-tests in isolation
+  attempts it. `publishConfig` no longer requests provenance either: npm can
+  only generate it from a CI runner holding an OIDC token, so asking for it
+  from a workstation failed the publish before it began. The workflow still builds, verifies, smoke-tests in isolation
   and attaches every Windows asset to the release.
 
 ### Fixed

@@ -802,8 +802,12 @@ npm publish --access public
 ```
 
 `prepublishOnly` re-runs `verify` and `build`, so a failing check stops the publish rather than
-shipping past it. Add `--provenance` when publishing from CI with an OIDC token; it does nothing
-useful from a workstation.
+shipping past it.
+
+`publishConfig` asks for public access and nothing else. Provenance is deliberately not requested
+there: npm can only generate it from a CI runner with an OIDC token, and asking for it from a
+workstation fails the publish outright. Pass `--provenance` explicitly if the publish ever moves
+back into a workflow.
 
 Versions are pinned exactly (`save-exact=true`). Dependabot proposes minor and patch updates
 monthly and never majors; security advisories bypass that schedule. See `.github/dependabot.yml`.
