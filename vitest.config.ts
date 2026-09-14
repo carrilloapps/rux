@@ -19,6 +19,11 @@ export default defineConfig({
 		// tool output readable, which made Ink interleave escape codes through
 		// every frame and turned passing assertions into failures there only.
 		env: {FORCE_COLOR: '0'},
+		// The PowerShell transport is tested against real PowerShell rather than a
+		// mock, and starting it on a cold shared runner costs seconds before any
+		// script runs. The default 5s budget makes that a flake rather than a
+		// failure, which is the worst of both.
+		testTimeout: 30_000,
 		coverage: {
 			provider: 'v8',
 			include: ['src/**'],

@@ -35,7 +35,8 @@ const entrySchema = z.object({
 	location: z.string(),
 	approvalKey: nullableString,
 	approvalHive: z
-		.union([z.literal('HKCU'), z.literal('HKLM'), z.null(), z.undefined()])
+		.union([z.literal('HKCU'), z.literal('HKLM'), z.null()])
+		.optional()
 		.transform(v => v ?? null),
 	taskPath: nullableString,
 	executableExists: z.boolean(),

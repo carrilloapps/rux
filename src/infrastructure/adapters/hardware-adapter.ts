@@ -48,7 +48,10 @@ const capabilitiesSchema = z.object({
 	secureBoot: psBoolean,
 	virtualizationEnabled: psBoolean,
 	powerPlan: psString,
-	batteryPresent: z.union([z.boolean(), z.null(), z.undefined()]).transform((v): boolean => v === true),
+	batteryPresent: z
+		.union([z.boolean(), z.null()])
+		.optional()
+		.transform((v): boolean => v === true),
 	osBuild: psText(''),
 });
 

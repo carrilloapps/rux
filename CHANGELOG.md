@@ -37,6 +37,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Reading a machine with no WSL installed crashed the hardware scan. Zod 4
+  distinguishes a key that is absent from one present with an undefined value,
+  and every shared PowerShell field schema listed `z.undefined()` in a union
+  rather than being `.optional()`, which only covers the second. PowerShell
+  omits a property entirely when it has nothing to report, so any optional
+  field the scripts left out failed validation. The helpers, the battery flag
+  and the startup approval hive are all absent-safe now, and tested through an
+  object, which is the only place the distinction is visible.
 - The test suite no longer depends on whether the surrounding shell forces
   colour. CI exports `FORCE_COLOR=1`, which made Ink interleave escape codes
   through every rendered frame, so six assertions that passed on a developer

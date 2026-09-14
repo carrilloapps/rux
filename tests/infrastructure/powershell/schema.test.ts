@@ -93,3 +93,50 @@ describe('psText', () => {
 		expect(psText().parse(null)).toBe('');
 	});
 });
+
+describe('absent keys', () => {
+	/**
+	 * PowerShell omits a property entirely when it has nothing to report, which
+	 * is not the same as sending it as null. Parsing each helper on its own
+	 * cannot tell the two apart, so every case here goes through an object: that
+	 * is where a schema decides whether the key may be missing at all.
+	 *
+	 * This is the shape a machine with no WSL installed produces, and it parsed
+	 * only by accident until Zod 4 tightened the rule.
+	 */
+	const record = z.object({
+		name: psString,
+		version: psNumber,
+		running: psBoolean,
+		count: psCount(3),
+		label: psText('unknown'),
+	});
+
+	it('accepts an object with every optional key missing', () => {
+		expect(record.parse({})).toEqual({
+			name: null,
+			version: null,
+			running: null,
+			count: 3,
+			label: 'unknown',
+		});
+	});
+
+	it('treats an absent key and an explicit null alike', () => {
+		const absent = record.parse({});
+		const explicit = record.parse({name: null, version: null, running: null, count: null, label: null});
+		expect(absent).toEqual(explicit);
+	});
+
+	it('still rejects a key present with the wrong type', () => {
+		expect(() => record.parse({name: 5})).toThrow();
+	});
+
+	it('parses a list of records that each omit different keys', () => {
+		const list = psArray(record);
+		expect(list.parse([{name: 'Ubuntu'}, {running: true}])).toEqual([
+			{name: 'Ubuntu', version: null, running: null, count: 3, label: 'unknown'},
+			{name: null, version: null, running: true, count: 3, label: 'unknown'},
+		]);
+	});
+});
