@@ -27,7 +27,7 @@ import type {ResidueClass, ResidueFinding} from '@/domain/residue';
 import type {ProcessInfo, RawStartupEntry} from '@/domain/startup';
 import type {WslStatus} from '@/domain/wsl';
 import type {PowerShellRunner} from '@/infrastructure/powershell/runner';
-import {aHardwareReport, aWslStatus} from './builders';
+import {aHardwareReport, aWslStatus} from '@tests/helpers/builders';
 
 /**
  * In-memory doubles for every port and for the PowerShell transport.

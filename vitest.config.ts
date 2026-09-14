@@ -3,7 +3,13 @@ import {defineConfig} from 'vitest/config';
 
 export default defineConfig({
 	resolve: {
-		alias: {'@': fileURLToPath(new URL('./src', import.meta.url))},
+		// Ordered, because Vite takes the first alias that matches and '@' would
+		// otherwise swallow every '@tests/...' specifier. The array form is what
+		// makes the order meaningful; an object would leave it to key iteration.
+		alias: [
+			{find: '@tests', replacement: fileURLToPath(new URL('./tests', import.meta.url))},
+			{find: '@', replacement: fileURLToPath(new URL('./src', import.meta.url))},
+		],
 	},
 	test: {
 		include: ['tests/**/*.test.ts', 'tests/**/*.test.tsx'],

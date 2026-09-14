@@ -1,7 +1,7 @@
 import {describe, expect, it} from 'vitest';
 import type {Recommendation} from '@/domain/recommendation';
 import {analyzeGraphics} from '@/domain/services/graphics-advisor';
-import {aDisplay, aGraphicsController, aGraphicsProfile, graphicsSettings} from '../../helpers/builders';
+import {aDisplay, aGraphicsController, aGraphicsProfile, graphicsSettings} from '@tests/helpers/builders';
 
 const NOW = new Date('2026-09-14T00:00:00.000Z');
 

@@ -12,7 +12,7 @@ import {
 	type CommandContext,
 } from '@/presentation/cli/commands';
 import type {CliOptions} from '@/presentation/cli/options';
-import {aJunkFinding, aJunkTarget, aRawStartupEntry, aResidueFinding} from '../../helpers/builders';
+import {aJunkFinding, aJunkTarget, aRawStartupEntry, aResidueFinding} from '@tests/helpers/builders';
 import {
 	fakeBackupPort,
 	fakeJunkCleanPort,
@@ -21,7 +21,7 @@ import {
 	fakeResidueRemovalPort,
 	fakeResidueScanPort,
 	fakeStartupInventoryPort,
-} from '../../helpers/fakes';
+} from '@tests/helpers/fakes';
 
 vi.mock('@/presentation/config', () => ({
 	createPreferenceStore: () => ({

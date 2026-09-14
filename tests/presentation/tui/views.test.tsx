@@ -22,7 +22,7 @@ import {
 	aResidueFinding,
 	aStartupEntry,
 	capabilities,
-} from '../../helpers/builders';
+} from '@tests/helpers/builders';
 
 let t: Translator;
 

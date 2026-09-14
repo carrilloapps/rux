@@ -1,7 +1,7 @@
 import {describe, expect, it} from 'vitest';
 import {bytes} from '@/domain/common';
 import {analyzeDrivers} from '@/domain/services/driver-advisor';
-import {aDriver, capabilities} from '../../helpers/builders';
+import {aDriver, capabilities} from '@tests/helpers/builders';
 
 const NOW = new Date('2026-09-14T00:00:00.000Z');
 

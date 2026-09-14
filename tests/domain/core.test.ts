@@ -6,7 +6,7 @@ import {RESIDUE_CLASSES, isResidueClass, requiresElevation, safeFindings} from '
 import {STARTUP_SOURCES, canToggle, statusOf} from '@/domain/startup';
 import {driverAgeDays, isInboxDriver} from '@/domain/hardware';
 import {defaultWslMemoryBytes, hasWsl2Distribution} from '@/domain/wsl';
-import {GIB, aDriver, aResidueFinding, aStartupEntry, aWslStatus} from '../helpers/builders';
+import {GIB, aDriver, aResidueFinding, aStartupEntry, aWslStatus} from '@tests/helpers/builders';
 
 describe('bytes', () => {
 	it('keeps a positive value', () => {

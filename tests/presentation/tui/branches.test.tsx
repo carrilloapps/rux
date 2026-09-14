@@ -7,7 +7,7 @@ import {StatusBar} from '@/presentation/tui/status-bar';
 import {useTerminalSize, type TerminalSize} from '@/presentation/tui/use-selection';
 import {HardwareList, ResidueList, StartupDetail} from '@/presentation/tui/views';
 import {DetailPane} from '@/presentation/tui/view-body';
-import {aJunkFinding, aResidueFinding, aStartupEntry} from '../../helpers/builders';
+import {aJunkFinding, aResidueFinding, aStartupEntry} from '@tests/helpers/builders';
 
 let t: Translator;
 

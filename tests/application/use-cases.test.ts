@@ -13,7 +13,7 @@ import {
 	aWslStatus,
 	capabilities,
 	aHardwareReport,
-} from '../helpers/builders';
+} from '@tests/helpers/builders';
 import {
 	fakeBackupPort,
 	fakeHardwarePort,
@@ -25,7 +25,7 @@ import {
 	fakeStartupInventoryPort,
 	fakeStartupMutationPort,
 	fakeWslPort,
-} from '../helpers/fakes';
+} from '@tests/helpers/fakes';
 
 describe('ScanStartup', () => {
 	it('correlates entries with processes and records the scan context', async () => {

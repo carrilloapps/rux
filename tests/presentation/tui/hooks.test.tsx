@@ -6,8 +6,8 @@ import {useScans} from '@/presentation/tui/use-scans';
 import {useChecked, useCursors, useTerminalSize} from '@/presentation/tui/use-selection';
 import type {ScanState} from '@/presentation/tui/use-scans';
 import type {CheckedState, CursorState} from '@/presentation/tui/use-selection';
-import {aRawStartupEntry, aProcess} from '../../helpers/builders';
-import {fakePorts, fakeStartupInventoryPort} from '../../helpers/fakes';
+import {aRawStartupEntry, aProcess} from '@tests/helpers/builders';
+import {fakePorts, fakeStartupInventoryPort} from '@tests/helpers/fakes';
 
 /**
  * Hooks are exercised through a throwaway component, which is the only way to

@@ -15,8 +15,8 @@ import {
 	aRawStartupEntry,
 	aResidueFinding,
 	capabilities,
-} from '../../helpers/builders';
-import {fakePorts, fakeStartupInventoryPort} from '../../helpers/fakes';
+} from '@tests/helpers/builders';
+import {fakePorts, fakeStartupInventoryPort} from '@tests/helpers/fakes';
 
 let t: Translator;
 

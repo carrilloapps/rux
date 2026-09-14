@@ -11,8 +11,8 @@ import {
 	createStartupMutationAdapter,
 } from '@/infrastructure/adapters/startup-adapter';
 import {createWslAdapter} from '@/infrastructure/adapters/wsl-adapter';
-import {aJunkFinding, aJunkTarget, aRawStartupEntry, aResidueFinding} from '../../helpers/builders';
-import {fakeRunner} from '../../helpers/fakes';
+import {aJunkFinding, aJunkTarget, aRawStartupEntry, aResidueFinding} from '@tests/helpers/builders';
+import {fakeRunner} from '@tests/helpers/fakes';
 
 /**
  * These cover the layer where shape bugs live: the schemas that absorb

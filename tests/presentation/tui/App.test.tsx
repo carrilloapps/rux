@@ -4,7 +4,13 @@ import {createUseCases} from '@/application/use-cases';
 import {createTranslator, initI18n, type Locale, type Translator} from '@/i18n/translator';
 import {App} from '@/presentation/tui/App';
 import type {PreferenceStore} from '@/presentation/config';
-import {aJunkFinding, aJunkTarget, aProcess, aRawStartupEntry, aResidueFinding} from '../../helpers/builders';
+import {
+	aJunkFinding,
+	aJunkTarget,
+	aProcess,
+	aRawStartupEntry,
+	aResidueFinding,
+} from '@tests/helpers/builders';
 import {
 	fakeJunkCleanPort,
 	fakeJunkScanPort,
@@ -13,7 +19,7 @@ import {
 	fakeResidueScanPort,
 	fakeStartupInventoryPort,
 	fakeStartupMutationPort,
-} from '../../helpers/fakes';
+} from '@tests/helpers/fakes';
 
 const ESCAPE = '\u001B';
 const BACKSPACE = '\u0008';
