@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.0.3] - 2026-09-14
+
+### Changed
+
+- Every GitHub Action moved to its current major: `actions/checkout` and
+  `actions/upload-artifact` to v7, `actions/setup-node` to v7,
+  `github/codeql-action` to v4, and `softprops/action-gh-release` to v3.
+- Every dependency moved to its latest stable release, which meant migrating
+  four majors: Zod 4 renamed the types the PowerShell runner imports and now
+  requires a key schema on `z.record`; i18next 26 replaced `initImmediate` with
+  its inverse, `initAsync`; TypeScript 6 deprecates `baseUrl`, so the path
+  aliases resolve relative to `tsconfig.json` instead; and Ink 7, React 19.3,
+  Vitest 5 and commander 15 came with them.
+- ESLint stays on 9 and TypeScript on 6: `eslint-plugin-react` supports no
+  ESLint above 9.7, and `typescript-eslint` supports no TypeScript from 6.1.
+  Both move up as soon as those plugins do.
+- The key handler is published to its ref from a layout effect rather than
+  during render. React 19 reports a ref write during render as an error, and a
+  passive effect would leave a keystroke in the gap after a frame is painted
+  handled by the previous render's closure.
+- Publishing to npm is a manual step and the release workflow no longer
+  attempts it. The workflow still builds, verifies, smoke-tests in isolation
+  and attaches every Windows asset to the release.
+
+### Fixed
+
+- A display reporting a zero width or height is treated as unknown rather than
+  as a wrong resolution. The check lived in two places with different
+  definitions of missing, and the one that ran first admitted zero, which
+  divides into Infinity rather than a scale ratio.
+
+### Testing
+
+- 448 tests, up from 429. Vitest 5 maps statements far more precisely than 3
+  did, which exposed real gaps the old reporter had counted as covered:
+  startup filters and sorts, paged movement, read-only guards, in-flight key
+  suppression, partial removal failures, and integrated-GPU detection by model
+  name and by shared memory. Coverage is back to complete statements, lines
+  and functions.
+
 ## [0.0.2] - 2026-09-14
 
 ### Added
@@ -86,6 +126,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A protected-path guard refuses removal of system directories regardless of
   what a finding claims.
 
-[Unreleased]: https://github.com/carrilloapps/rux/compare/v0.0.2...HEAD
+[Unreleased]: https://github.com/carrilloapps/rux/compare/v0.0.3...HEAD
+[0.0.3]: https://github.com/carrilloapps/rux/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/carrilloapps/rux/compare/v0.0.1...v0.0.2
 [0.0.1]: https://github.com/carrilloapps/rux/releases/tag/v0.0.1

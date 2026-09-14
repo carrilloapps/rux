@@ -788,10 +788,29 @@ The release tag is the only place a version is authored. Publishing a GitHub rel
 4. **copies that distribution out of the checkout** and runs every command there, so a build that
    only works beside its own `node_modules` fails the release;
 5. builds the Inno Setup installer and a portable archive;
-6. publishes checksums, attaches every asset to the release, and publishes to npm with provenance.
+6. publishes checksums and attaches every asset to the release.
+
+**Publishing to npm is manual**, so a package version is never pushed to the registry without
+someone deciding to. From a clean checkout on Windows:
+
+```sh
+npm ci
+npm run version:set 0.0.3      # writes package.json and the lockfile
+npm run verify                 # format, types, lint, tests
+npm run pack:check             # confirm the tarball is the five expected files
+npm publish --access public
+```
+
+`prepublishOnly` re-runs `verify` and `build`, so a failing check stops the publish rather than
+shipping past it. Add `--provenance` when publishing from CI with an OIDC token; it does nothing
+useful from a workstation.
 
 Versions are pinned exactly (`save-exact=true`). Dependabot proposes minor and patch updates
 monthly and never majors; security advisories bypass that schedule. See `.github/dependabot.yml`.
+
+Two dependencies are deliberately held back, and both move up as soon as their plugins allow:
+ESLint stays on 9 because `eslint-plugin-react` supports nothing above 9.7, and TypeScript stays
+on 6 because `typescript-eslint` supports nothing from 6.1.
 
 </details>
 
