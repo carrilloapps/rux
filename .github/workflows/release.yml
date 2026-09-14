@@ -1,0 +1,175 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Version to build, without the leading v (dry run only)
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-windows:
+    name: Build Windows distribution
+    runs-on: windows-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.resolve.outputs.version }}
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Resolve version
+        id: resolve
+        shell: pwsh
+        run: |
+          if ('${{ github.event_name }}' -eq 'release') {
+            $version = '${{ github.event.release.tag_name }}' -replace '^v', ''
+          } elseif ('${{ inputs.version }}') {
+            $version = '${{ inputs.version }}'
+          } else {
+            $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          }
+          $declared = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          if ($version -ne $declared) {
+            throw "Release version $version does not match package.json version $declared"
+          }
+          "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host "Building rux $version"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify
+        run: npm run verify
+
+      - name: Build bundle
+        run: npm run build
+
+      - name: Stage the Windows distribution
+        # Uses the runner's own Node, which .nvmrc pins, as the embedded runtime.
+        run: npm run package:windows
+
+      - name: Smoke-test the staged build
+        shell: pwsh
+        run: |
+          # A distribution that builds but cannot read the system is not a release.
+          $reported = (& .\build\stage\rux.cmd --version).Trim()
+          if ($reported -ne '${{ steps.resolve.outputs.version }}') {
+            throw "Version mismatch: expected ${{ steps.resolve.outputs.version }}, got $reported"
+          }
+          & .\build\stage\rux.cmd --help | Out-Null
+          & .\build\stage\rux.cmd startup --list --lang en-US
+          & .\build\stage\rux.cmd startup --list --lang es-VE | Out-Null
+          & .\build\stage\rux.cmd clean --json --class startup | ConvertFrom-Json | Out-Null
+          & .\build\stage\rux.cmd junk --json | ConvertFrom-Json | Out-Null
+          & .\build\stage\rux.cmd hardware --json | ConvertFrom-Json | Out-Null
+          Write-Host 'Staged build smoke test passed.'
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --no-progress --yes
+
+      - name: Build installer
+        shell: pwsh
+        run: |
+          $compiler = 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
+          if (-not (Test-Path $compiler)) { throw "Inno Setup compiler not found at $compiler" }
+          & $compiler "/DAppVersion=${{ steps.resolve.outputs.version }}" installer\rux.iss
+          $installer = "build\rux-${{ steps.resolve.outputs.version }}-setup.exe"
+          if (-not (Test-Path $installer)) { throw 'Inno Setup did not produce the installer' }
+
+      - name: Create portable archive
+        shell: pwsh
+        run: |
+          Compress-Archive -Path 'build\stage\*' -DestinationPath "build\rux-${{ steps.resolve.outputs.version }}-win-x64.zip" -Force
+
+      - name: Generate checksums
+        shell: pwsh
+        run: |
+          Push-Location build
+          Get-ChildItem -File | Where-Object { $_.Extension -in '.exe', '.zip' } |
+            ForEach-Object { '{0}  {1}' -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower(), $_.Name } |
+            Set-Content -Path SHA256SUMS.txt -Encoding ascii
+          Get-Content SHA256SUMS.txt
+          Pop-Location
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: rux-windows-${{ steps.resolve.outputs.version }}
+          path: |
+            build/rux-*-setup.exe
+            build/rux-*-win-x64.zip
+            build/SHA256SUMS.txt
+          retention-days: 30
+
+      - name: Attach assets to the release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/rux-*-setup.exe
+            build/rux-*-win-x64.zip
+            build/SHA256SUMS.txt
+          fail_on_unmatched_files: true
+
+  publish-npm:
+    name: Publish to npm
+    needs: build-windows
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      # Required for npm provenance attestation.
+      id-token: write
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          registry-url: https://registry.npmjs.org
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Confirm the tag matches package.json
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          PKG="$(node -p "require('./package.json').version")"
+          if [ "$TAG" != "$PKG" ]; then
+            echo "Tag $TAG does not match package.json version $PKG" >&2
+            exit 1
+          fi
+
+      - name: Build
+        run: npm run build
+
+      - name: Publish
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
