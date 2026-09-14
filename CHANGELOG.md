@@ -27,6 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   during render. React 19 reports a ref write during render as an error, and a
   passive effect would leave a keystroke in the gap after a frame is painted
   handled by the previous render's closure.
+- Building rux now needs Node 22.13 or newer, which the upgraded toolchain
+  requires. The published package's own floor is unchanged at 20.19, and CI
+  proves it: one job builds on the current toolchain, switches to 20.19 and
+  runs the bundle there.
 - Publishing to npm is a manual step and the release workflow no longer
   attempts it. The workflow still builds, verifies, smoke-tests in isolation
   and attaches every Windows asset to the release.
