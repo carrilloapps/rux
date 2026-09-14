@@ -96,7 +96,7 @@ file, so there is no dependency tree to install.
 To pin a version, or to force a fresh download:
 
 ```sh
-npx @carrilloapps/rux@0.0.2      # a specific version
+npx @carrilloapps/rux@0.0.3      # a specific version
 npx --yes @carrilloapps/rux      # skip the install prompt
 ```
 
