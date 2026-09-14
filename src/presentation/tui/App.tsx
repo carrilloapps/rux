@@ -1,5 +1,5 @@
-import {useCallback, useEffect, useMemo, useState} from 'react';
-import {Box, Text, useApp, useInput} from 'ink';
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
+import {Box, Text, useApp, useInput, type Key as InkKey} from 'ink';
 import type {UseCases} from '@/application/use-cases';
 import {canToggle, statusOf} from '@/domain/startup';
 import {LOCALE_LABELS, nextLocale, type Locale, type Translator} from '@/i18n/translator';
@@ -73,6 +73,9 @@ export function App(props: AppProps) {
 	const [includeTasks, setIncludeTasks] = useState(props.includeTasks);
 	const [deep, setDeep] = useState(props.deep);
 
+	// Holds the live key handler so the function Ink subscribes to never changes.
+	const handlerRef = useRef<(input: string, key: InkKey) => void>(() => undefined);
+
 	const reportError = useCallback((message: string) => {
 		setStatus({text: message, tone: 'error'});
 	}, []);
@@ -111,7 +114,6 @@ export function App(props: AppProps) {
 		if (initialView === 'junk') void scans.loadJunk();
 		if (initialView === 'hardware') void scans.loadHardware();
 		// Runs once on mount; every later load goes through a key handler.
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	useEffect(() => {
@@ -348,7 +350,18 @@ export function App(props: AppProps) {
 		],
 	);
 
-	useInput((input, key) => {
+	/**
+	 * Ink resubscribes its stdin listener whenever the handler identity changes,
+	 * which is every render. A key pressed in the gap between unsubscribing and
+	 * resubscribing is dropped, and a finishing scan produces a burst of renders.
+	 * Holding the live handler in a ref keeps the subscribed function stable, so
+	 * Ink subscribes once and no keystroke is lost.
+	 */
+	const handleKey = useCallback((input: string, key: InkKey) => {
+		handlerRef.current(input, key);
+	}, []);
+
+	handlerRef.current = (input: string, key: InkKey) => {
 		if (busy) return;
 
 		if (mode === 'search') {
@@ -401,7 +414,9 @@ export function App(props: AppProps) {
 
 		if (view === 'startup') return handleStartupKey(input);
 		if (isSelectableView(view)) handleSelectionKey(input, key.return);
-	});
+	};
+
+	useInput(handleKey);
 
 	if (scans.fatal) {
 		return (
