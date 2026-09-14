@@ -19,6 +19,7 @@ and whether your graphics, drivers and WSL are actually configured well.
 [![platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-0078D4?logo=windows)](https://www.microsoft.com/windows)
 [![typescript](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white)](./tsconfig.json)
 [![i18n](https://img.shields.io/badge/i18n-en--US%20%7C%20es--VE-22d3ee)](#language)
+[![coverage](https://img.shields.io/badge/coverage-100%25%20statements-brightgreen)](#development)
 
 [Install](#install) - [Startup](#startup) - [Leftovers](#leftovers) - [Junk](#junk-files) -
 [Hardware](#hardware-and-recommendations) - [WSL](#wsl) - [Roadmap](./docs/ROADMAP.md)

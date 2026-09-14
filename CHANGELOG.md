@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0] - 2026-09-14
+## [0.0.1] - 2026-09-14
 
 ### Added
 
@@ -33,6 +33,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Release workflow producing a standalone Windows executable, an Inno Setup
   installer and a portable archive with checksums.
 
+### Testing
+
+- 429 tests covering every domain rule, use case, adapter, command and interface
+  component, at complete statement, line and function coverage.
+- The PowerShell transport is tested against real PowerShell rather than a mock,
+  including parameter safety, non-ASCII round trips and scripts larger than a
+  Windows command line allows.
+
 ### Security
 
 - Script parameters are passed as base64-encoded JSON rather than interpolated
@@ -40,5 +48,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A protected-path guard refuses removal of system directories regardless of
   what a finding claims.
 
-[Unreleased]: https://github.com/carrilloapps/rux/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/carrilloapps/rux/releases/tag/v1.0.0
+[Unreleased]: https://github.com/carrilloapps/rux/compare/v0.0.1...HEAD
+[0.0.1]: https://github.com/carrilloapps/rux/releases/tag/v0.0.1
