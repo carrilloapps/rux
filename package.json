@@ -1,6 +1,6 @@
 {
 	"name": "@carrilloapps/rux",
-	"version": "1.0.0",
+	"version": "0.0.1",
 	"description": "Windows system inspector and cleaner: startup entries, uninstall leftovers, junk files, graphics, drivers and WSL analysis, with reversible removal and a bilingual terminal interface",
 	"keywords": [
 		"windows",
@@ -70,6 +70,7 @@
 		"test:coverage": "vitest run --coverage",
 		"verify": "npm run format:check && npm run typecheck && npm run lint && npm run test",
 		"prepublishOnly": "npm run verify && npm run build",
+		"icons": "node scripts/build-icons.mjs",
 		"package:windows": "node scripts/package-windows.mjs"
 	},
 	"dependencies": {
@@ -91,7 +92,9 @@
 		"eslint-plugin-react": "7.37.5",
 		"eslint-plugin-react-hooks": "6.1.1",
 		"globals": "16.4.0",
+		"png-to-ico": "2.1.8",
 		"prettier": "3.6.2",
+		"sharp": "0.34.5",
 		"tsup": "8.5.1",
 		"typescript": "5.9.3",
 		"typescript-eslint": "8.46.4",

@@ -1,10 +1,11 @@
 ; Inno Setup script for the rux Windows installer.
 ;
 ; Built by .github/workflows/release.yml, which passes the version in:
-;   ISCC.exe /DAppVersion=1.0.0 installer\rux.iss
+;   ISCC.exe /DAppVersion=0.0.1 installer\rux.iss
 ;
+; The version always comes from the release tag; nothing here hardcodes one.
 ; The installer adds rux to the user's PATH so it works from any terminal, and
-; installs per-user by default so it needs no administrator rights.
+; installs per user by default so it needs no administrator rights.
 
 #ifndef AppVersion
   #define AppVersion "0.0.0"
@@ -35,13 +36,14 @@ DisableProgramGroupPage=yes
 DisableDirPage=auto
 AllowNoIcons=yes
 
-; Per-user by default: no elevation prompt for a command line tool.
+; Per user by default: no elevation prompt for a command line tool.
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog commandline
 
 OutputDir=..\build
 OutputBaseFilename=rux-{#AppVersion}-setup
-SetupIconFile=
+SetupIconFile=..\assets\icon.ico
+UninstallDisplayIcon={app}\icon.ico
 Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
@@ -63,9 +65,10 @@ Name: "addtopath"; Description: "{cm:AddToPath}"; GroupDescription: "{cm:Additio
 ; the launchers. See scripts/package-windows.mjs for why the runtime ships beside
 ; the app rather than being packed into a single executable.
 Source: "..\build\stage\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\assets\icon.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\{#AppName}"; Filename: "{cmd}"; Parameters: "/k ""{app}\{#AppLauncher}"" --help"; WorkingDir: "{app}"
+Name: "{group}\{#AppName}"; Filename: "{cmd}"; Parameters: "/k ""{app}\{#AppLauncher}"" --help"; WorkingDir: "{app}"; IconFilename: "{app}\icon.ico"
 Name: "{group}\{cm:UninstallProgram,{#AppName}}"; Filename: "{uninstallexe}"
 
 [Run]
