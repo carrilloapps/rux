@@ -104,13 +104,9 @@ jobs:
         run: choco install innosetup --no-progress --yes
 
       - name: Build installer
-        shell: pwsh
-        run: |
-          $compiler = 'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
-          if (-not (Test-Path $compiler)) { throw "Inno Setup compiler not found at $compiler" }
-          & $compiler "/DAppVersion=${{ steps.resolve.outputs.version }}" installer\rux.iss
-          $installer = "build\rux-${{ steps.resolve.outputs.version }}-setup.exe"
-          if (-not (Test-Path $installer)) { throw 'Inno Setup did not produce the installer' }
+        # The same command a maintainer runs locally, so the two cannot drift.
+        # It takes the version from package.json, which the resolve step wrote.
+        run: npm run package:installer
 
       - name: Create portable archive
         shell: pwsh

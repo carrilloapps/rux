@@ -2,8 +2,11 @@
  * Headless render harness.
  *
  * Drives the real interface against a fake TTY so a frame can be inspected in
- * CI or from a non-interactive shell. Not part of the test suite; run it with
- * `npx tsx tests/smoke.tsx <view> <locale> <waitMs>`.
+ * CI or from a non-interactive shell. Not part of the test suite.
+ *
+ * Usage:
+ *   npm run preview -- <view> <locale> <waitMs>
+ *   npm run preview -- hardware es-VE 5000
  */
 import {EventEmitter} from 'node:events';
 import {Writable} from 'node:stream';

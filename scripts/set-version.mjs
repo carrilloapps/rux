@@ -18,6 +18,7 @@ import process from 'node:process';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const MANIFEST = path.join(ROOT, 'package.json');
+const LOCKFILE = path.join(ROOT, 'package-lock.json');
 
 /** Official semantic versioning pattern, from semver.org. */
 const SEMVER =
@@ -58,7 +59,35 @@ async function main() {
 	}
 
 	await writeFile(MANIFEST, updated, 'utf8');
+	await syncLockfile(manifest.name, version);
 	process.stdout.write(`package.json ${previous} -> ${version}\n`);
+}
+
+/**
+ * Carries the version into package-lock.json.
+ *
+ * The lockfile records the root version twice, at the top level and under the
+ * root package entry. Leaving them behind puts the lockfile out of sync with
+ * the manifest, which `npm ci` refuses to install.
+ *
+ * The fields are rewritten in place rather than through a JSON round trip, so
+ * the file keeps npm's own formatting and the diff stays to two lines.
+ */
+async function syncLockfile(name, version) {
+	let raw;
+	try {
+		raw = await readFile(LOCKFILE, 'utf8');
+	} catch (error) {
+		if (error.code === 'ENOENT') return;
+		throw error;
+	}
+
+	const rootVersion = new RegExp(`("name": ${JSON.stringify(name)},\\s*\\n\\s*"version": )"[^"]*"`, 'g');
+	const updated = raw.replace(rootVersion, (_match, prefix) => `${prefix}"${version}"`);
+	if (updated === raw) return;
+
+	await writeFile(LOCKFILE, updated, 'utf8');
+	process.stdout.write(`package-lock.json synced to ${version}\n`);
 }
 
 main().catch(error => {

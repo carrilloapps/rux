@@ -133,6 +133,14 @@ function buildProgram(useCases: UseCases): Command {
 			[] as string[],
 		);
 
+	// Every option above belongs to the program, so `rux junk --help` would
+	// otherwise list none of them. A footer points at the full list instead of
+	// repeating the block on each command, which would drift on the next option.
+	program.addHelpText(
+		'afterAll',
+		'\nOptions are global: they work before or after a command, and "rux --help" lists them all.\n',
+	);
+
 	const context = (): CommandContext => ({useCases, options: program.opts<CliOptions>(), print});
 
 	for (const command of VIEW_COMMANDS) {

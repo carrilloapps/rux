@@ -1,6 +1,6 @@
 {
 	"name": "@carrilloapps/rux",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "Windows system inspector and cleaner: startup entries, uninstall leftovers, junk files, graphics, drivers and WSL analysis, with reversible removal and a bilingual terminal interface",
 	"keywords": [
 		"windows",
@@ -60,6 +60,8 @@
 		"build": "tsup",
 		"dev": "tsup --watch",
 		"start": "node dist/main.js",
+		"preview": "vite-node --config vitest.config.ts scripts/preview.tsx --",
+		"clean": "node scripts/clean.mjs",
 		"typecheck": "tsc --noEmit",
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix",
@@ -69,9 +71,13 @@
 		"test:watch": "vitest",
 		"test:coverage": "vitest run --coverage",
 		"verify": "npm run format:check && npm run typecheck && npm run lint && npm run test",
-		"prepublishOnly": "npm run verify && npm run build",
+		"verify:coverage": "npm run format:check && npm run typecheck && npm run lint && npm run test:coverage",
 		"icons": "node scripts/build-icons.mjs",
-		"package:windows": "node scripts/package-windows.mjs"
+		"package:windows": "node scripts/package-windows.mjs",
+		"package:installer": "node scripts/build-installer.mjs",
+		"pack:check": "npm pack --dry-run",
+		"version:set": "node scripts/set-version.mjs",
+		"prepublishOnly": "npm run verify && npm run build"
 	},
 	"devDependencies": {
 		"@eslint/js": "9.39.1",
@@ -96,6 +102,7 @@
 		"tsup": "8.5.1",
 		"typescript": "5.9.3",
 		"typescript-eslint": "8.46.4",
+		"vite-node": "3.2.4",
 		"vitest": "3.2.4",
 		"zod": "3.25.76"
 	}
