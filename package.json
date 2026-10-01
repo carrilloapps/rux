@@ -80,9 +80,9 @@
 	},
 	"devDependencies": {
 		"@eslint/js": "9.39.5",
-		"@types/node": "26.5.1",
+		"@types/node": "26.6.3",
 		"@types/react": "19.3.0",
-		"@vitest/coverage-v8": "5.0.0",
+		"@vitest/coverage-v8": "5.0.2",
 		"commander": "15.0.0",
 		"conf": "15.1.0",
 		"eslint": "9.39.5",
@@ -94,15 +94,15 @@
 		"ink": "7.1.1",
 		"ink-testing-library": "4.0.0",
 		"png-to-ico": "3.0.2",
-		"prettier": "3.9.6",
+		"prettier": "3.9.9",
 		"react": "19.3.0",
-		"sharp": "0.35.4",
-		"systeminformation": "5.33.10",
+		"sharp": "0.35.5",
+		"systeminformation": "5.33.13",
 		"tsup": "8.5.1",
 		"typescript": "6.0.3",
-		"typescript-eslint": "8.70.0",
+		"typescript-eslint": "8.70.1",
 		"vite-node": "6.0.0",
-		"vitest": "5.0.0",
+		"vitest": "5.0.2",
 		"zod": "4.6.5"
 	}
 }
